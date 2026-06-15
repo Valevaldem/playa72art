@@ -51,6 +51,17 @@ textarea{resize:vertical;min-height:64px;line-height:1.5}
 .toast.show{opacity:1}
 .toast.ok{border-color:var(--green)} .toast.bad{border-color:var(--red)}
 .muted{color:var(--muted);font-size:12px}
+.pitem{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;overflow:hidden;background:var(--panel)}
+.pitem.open{border-color:var(--pink)}
+.phead{display:flex;align-items:center;gap:10px;padding:9px 10px}
+.phead .pth{width:46px;height:46px;border-radius:8px;background-size:cover;background-position:center;flex:none;border:1px solid var(--line)}
+.phead .pin{flex:1;min-width:0}
+.phead .pin b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phead .pin span{font-size:12px;color:var(--muted)}
+.tagmini{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.tagmini.disponible{background:#3a2f0a;color:var(--yellow)} .tagmini.vendido{background:#3a0f22;color:var(--pink)} .tagmini.reservado{background:#3a230a;color:#ffa64d}
+.pbody{padding:6px 12px 14px;border-top:1px solid var(--line)}
+.pbody.collapsed{display:none}
 .note{background:#1a1115;border-left:3px solid var(--yellow);border-radius:8px;padding:11px 13px;font-size:13px;color:#cdbcc4;line-height:1.55;margin-bottom:14px}
 .note b{color:var(--cream)}
 .hidden{display:none!important}
@@ -138,6 +149,7 @@ const TLABEL = {
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let STATE = null, TAB = "textos";
+let openPiezas = new Set();   // qué piezas están desplegadas para editar
 const $ = s => document.querySelector(s);
 const elFrom = h => { const t=document.createElement("template"); t.innerHTML=h.trim(); return t.content.firstChild; };
 function toast(msg,type){ const t=$("#toast"); t.textContent=msg; t.className="toast show "+(type||""); setTimeout(()=>t.className="toast",2200); }
@@ -255,40 +267,59 @@ function renderCats(p){
 
 /* ---------- GALERÍA ---------- */
 function renderPiezas(p){
-  p.appendChild(elFrom(`<div class="note">📷 La <b>1ª foto</b> es la portada; las demás salen en el carrusel al abrir la pieza. También puedes subir un <b>video corto</b> y aparece como una vista más del carrusel. Si no subes nada, se ve un degradado de relleno.<br>El <b>estado</b> cambia la etiqueta de color: Disponible (amarillo), Reservado (naranja), Vendido (rosa).</div>`));
+  p.appendChild(elFrom(`<div class="note">📷 La <b>1ª foto</b> es la portada; las demás van al carrusel. También puedes subir un <b>video corto</b>. El <b>estado</b> pinta la etiqueta: Disponible (amarillo), Reservado (naranja), Vendido (rosa). Pícale a <b>Editar</b> para abrir una pieza.</div>`));
   STATE.piezas.forEach((pz,i)=>{
-    if(!pz.titulo)pz.titulo={es:"",en:""}; if(!pz.tecnica)pz.tecnica={es:"",en:""}; if(!Array.isArray(pz.imgs))pz.imgs=[];
-    const c=elFrom(`<div class="card">
-      <div class="itemhead"><b>Pieza ${i+1}</b><button class="btn danger sm" data-act="del">Eliminar</button></div>
-      <div class="row">
-        <div class="field"><label>Título (ES)</label><input data-f="titulo.es"></div>
-        <div class="field"><label>Título (EN)</label><input data-f="titulo.en"></div>
+    if(!pz.titulo)pz.titulo={es:"",en:""}; if(!pz.tecnica)pz.tecnica={es:"",en:""}; if(!pz.descripcion)pz.descripcion={es:"",en:""}; if(!Array.isArray(pz.imgs))pz.imgs=[];
+    if(pz.id==null) pz.id="pz-"+i+"-"+Date.now();
+    const open=openPiezas.has(pz.id);
+    const firstImg=pz.imgs[0]||"";
+    const thumbStyle=firstImg?`background-image:url('${firstImg}')`:`background:linear-gradient(145deg,#3a0d47,#d11a5e)`;
+    const estado=pz.estado||"disponible";
+    const estLbl={disponible:"Disp.",vendido:"Vendido",reservado:"Resv."}[estado]||"Disp.";
+    const c=elFrom(`<div class="pitem ${open?'open':''}" data-pid="${pz.id}">
+      <div class="phead">
+        <div class="pth" style="${thumbStyle}"></div>
+        <div class="pin"><b>${pz.titulo.es||"(sin título)"}</b><span>${pz.medida||""}${pz.precio?(" · $"+pz.precio):""}</span></div>
+        <span class="tagmini ${estado}">${estLbl}</span>
+        <button class="btn ghost sm" data-act="edit">${open?"Cerrar":"Editar"}</button>
+        <button class="btn danger sm" data-act="del">✕</button>
       </div>
-      <div class="row">
-        <div class="field"><label>Precio (MXN)</label><input type="number" data-f="precio"></div>
-        <div class="field"><label>Medida</label><input data-f="medida" placeholder="50×70 cm"></div>
+      <div class="pbody ${open?'':'collapsed'}">
+        <div class="row">
+          <div class="field"><label>Título (ES)</label><input data-f="titulo.es"></div>
+          <div class="field"><label>Título (EN)</label><input data-f="titulo.en"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label>Descripción (ES)</label><textarea data-f="descripcion.es" rows="2"></textarea></div>
+          <div class="field"><label>Descripción (EN)</label><textarea data-f="descripcion.en" rows="2"></textarea></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Precio (MXN)</label><input type="number" data-f="precio"></div>
+          <div class="field"><label>Medida</label><input data-f="medida" placeholder="50×70 cm"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Categoría</label><select data-f="cat"></select></div>
+          <div class="field"><label>Estado</label><select data-f="estado">
+            <option value="disponible">Disponible</option><option value="vendido">Vendido</option><option value="reservado">Reservado</option></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Técnica (ES)</label><input data-f="tecnica.es"></div>
+          <div class="field"><label>Técnica (EN)</label><input data-f="tecnica.en"></div>
+        </div>
+        <div class="field"><label>Fotos</label><div class="thumbs"></div>
+          <input type="file" accept="image/*" multiple data-act="img"></div>
+        <div class="field"><label>Video corto (opcional, mp4)</label><div class="thumbs" data-vthumb></div>
+          <input type="file" accept="video/*" data-act="vid"></div>
       </div>
-      <div class="row">
-        <div class="field"><label>Categoría</label><select data-f="cat"></select></div>
-        <div class="field"><label>Estado</label><select data-f="estado">
-          <option value="disponible">Disponible</option><option value="vendido">Vendido</option><option value="reservado">Reservado</option></select></div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Técnica (ES)</label><input data-f="tecnica.es"></div>
-        <div class="field"><label>Técnica (EN)</label><input data-f="tecnica.en"></div>
-      </div>
-      <div class="field"><label>Fotos</label><div class="thumbs"></div>
-        <input type="file" accept="image/*" multiple data-act="img"></div>
-      <div class="field"><label>Video corto (opcional, mp4)</label><div class="thumbs" data-vthumb></div>
-        <input type="file" accept="video/*" data-act="vid"></div>
     </div>`);
     const set=(sel,val)=>{const e=c.querySelector(sel); if(e)e.value=val;};
     const catSel=c.querySelector('[data-f="cat"]');
     catSel.innerHTML=(STATE.cats||[]).map(x=>`<option value="${x.key}">${(x.label&&x.label.es)||x.key}</option>`).join("");
     if(pz.cat && !(STATE.cats||[]).find(x=>x.key===pz.cat)) catSel.insertAdjacentHTML("beforeend",`<option value="${pz.cat}">${pz.cat} (sin tipo)</option>`);
     set('[data-f="titulo.es"]',pz.titulo.es||""); set('[data-f="titulo.en"]',pz.titulo.en||"");
+    set('[data-f="descripcion.es"]',pz.descripcion.es||""); set('[data-f="descripcion.en"]',pz.descripcion.en||"");
     set('[data-f="precio"]',pz.precio??""); set('[data-f="medida"]',pz.medida||"");
-    set('[data-f="cat"]',pz.cat||((STATE.cats[0]&&STATE.cats[0].key)||"")); set('[data-f="estado"]',pz.estado||"disponible");
+    set('[data-f="cat"]',pz.cat||((STATE.cats[0]&&STATE.cats[0].key)||"")); set('[data-f="estado"]',estado);
     set('[data-f="tecnica.es"]',pz.tecnica.es||""); set('[data-f="tecnica.en"]',pz.tecnica.en||"");
     c.querySelectorAll("[data-f]").forEach(inp=>{ const h=e=>{
       const f=e.target.dataset.f, v=e.target.value;
@@ -301,7 +332,8 @@ function renderPiezas(p){
       th.querySelector("button").onclick=()=>{pz.imgs.splice(j,1);renderPanel();};tw.appendChild(th);});
     const vt=c.querySelector("[data-vthumb]");
     if(pz.video){const th=elFrom(`<div class="thumb" style="background:#222;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">VIDEO<button>×</button></div>`);th.querySelector("button").onclick=()=>{pz.video="";renderPanel();};vt.appendChild(th);}
-    c.querySelector('[data-act="del"]').onclick=()=>{STATE.piezas.splice(i,1);renderPanel();};
+    c.querySelector('[data-act="edit"]').onclick=()=>{ if(openPiezas.has(pz.id))openPiezas.delete(pz.id); else openPiezas.add(pz.id); renderPanel(); };
+    c.querySelector('[data-act="del"]').onclick=()=>{ if(confirm("¿Eliminar esta pieza?")){STATE.piezas.splice(i,1); openPiezas.delete(pz.id); renderPanel();} };
     c.querySelector('[data-act="img"]').onchange=async e=>{
       const files=[...e.target.files]; if(!files.length)return;
       toast("Subiendo foto(s)…");
@@ -316,7 +348,7 @@ function renderPiezas(p){
     p.appendChild(c);
   });
   const add=elFrom(`<button class="btn ghost">+ Agregar pieza</button>`);
-  add.onclick=()=>{STATE.piezas.push({id:Date.now(),cat:(STATE.cats[0]&&STATE.cats[0].key)||"",titulo:{es:"",en:""},precio:0,medida:"",estado:"disponible",tecnica:{es:"",en:""},imgs:[],video:""});renderPanel();};
+  add.onclick=()=>{ const id="pz-"+Date.now(); STATE.piezas.push({id,cat:(STATE.cats[0]&&STATE.cats[0].key)||"",titulo:{es:"",en:""},descripcion:{es:"",en:""},precio:0,medida:"",estado:"disponible",tecnica:{es:"",en:""},imgs:[],video:""}); openPiezas.add(id); renderPanel(); setTimeout(()=>{const el=document.querySelector(`[data-pid="${id}"]`); if(el)el.scrollIntoView({behavior:"smooth",block:"center"});},60); };
   p.appendChild(add);
 }
 
@@ -417,7 +449,7 @@ async function save(){
   const { error }=await sb.from("site").upsert({id:1,data:STATE,updated_at:new Date().toISOString()});
   $("#saveBtn").disabled=false; $("#saveHint").textContent="No olvides Guardar al terminar";
   if(error){ toast("No se pudo guardar: "+error.message,"bad"); }
-  else { toast("¡Guardado! Ya se ve en la página.","ok"); }
+  else { toast("¡Guardado! Ya se ve en la página.","ok"); openPiezas.clear(); if(TAB==="piezas") renderPanel(); }
 }
 
 /* ---------- WIRE ---------- */

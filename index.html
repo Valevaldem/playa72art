@@ -87,6 +87,16 @@ section{position:relative;z-index:1}
 
 /* GALERIA */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
+@media (max-width:600px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:11px}
+  .card{padding:6px 6px 0}
+  .thumb{aspect-ratio:1/1}
+  .cmeta{padding:7px 2px 2px}
+  .cmeta .ct{font-size:12px} .cmeta .cp{font-size:15px}
+  .csz{font-size:11px;padding:0 2px 7px}
+  .badge{font-size:11px;padding:4px 8px}
+  .cseal{width:26px;height:26px}
+}
 .card{background:#efe7d8;padding:9px 9px 0;border:1px solid #000;cursor:pointer;text-align:left;font-family:inherit;color:inherit;display:block;transition:transform .12s ease}
 .card:nth-child(3n+1){transform:rotate(-1.4deg)} .card:nth-child(3n+2){transform:rotate(1deg)} .card:nth-child(3n){transform:rotate(-.6deg)}
 .card:hover{transform:rotate(0) scale(1.015)}
@@ -159,6 +169,7 @@ footer{position:relative;z-index:1;background:var(--panel);border-top:2px solid 
 .mcount{position:absolute;bottom:8px;right:8px;z-index:4;background:#0c0709;color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:1px;padding:3px 9px}
 .mbody{padding:22px 22px 26px}
 .mtitle{font-family:'Pirata One',cursive;font-size:34px;line-height:1;color:var(--ink);margin:4px 0 12px}
+.mdesc{font-size:14px;line-height:1.6;color:#5a4a42;margin:0 0 14px;white-space:pre-line}
 .mrow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed #b6a18f;padding:8px 0;font-size:14px}
 .mrow .k{color:#7a6b62;text-transform:uppercase;font-family:'Barlow Condensed';font-weight:700;letter-spacing:1px}
 .mprice{font-family:'Permanent Marker';font-size:30px;color:var(--red);margin:16px 0 18px}
@@ -336,6 +347,7 @@ footer{position:relative;z-index:1;background:var(--panel);border-top:2px solid 
     </div>
     <div class="mbody">
       <h3 class="mtitle" id="mtitle"></h3>
+      <p class="mdesc" id="mdesc"></p>
       <div class="mrow"><span class="k" data-i18n="m_tecnica">Técnica</span><span id="mtec"></span></div>
       <div class="mrow"><span class="k" data-i18n="m_medida">Medida</span><span id="mmed"></span></div>
       <div class="mrow"><span class="k" data-i18n="m_estado">Estado</span><span id="mest"></span></div>
@@ -609,6 +621,8 @@ function openPieza(id){
   openId = id; mSlides = slidesFor(p); mIdx = 0; mShow();
   const badge = $("#mbadge"); badge.className = "badge "+p.estado; badge.textContent = T("st_"+p.estado);
   $("#mtitle").textContent = p.titulo[lang];
+  const desc = (p.descripcion && p.descripcion[lang]) || "";
+  const md = $("#mdesc"); md.textContent = desc; md.style.display = desc ? "" : "none";
   $("#mtec").textContent = p.tecnica[lang];
   $("#mmed").textContent = p.medida;
   $("#mest").textContent = T("st_"+p.estado);
