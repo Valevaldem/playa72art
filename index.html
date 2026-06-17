@@ -86,7 +86,19 @@ section{position:relative;z-index:1}
 .more:hover{color:#fff;border-color:var(--yellow)}
 
 /* GALERIA */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
+/* Carrusel horizontal (previews del inicio) */
+.scrlwrap{position:relative;margin-top:4px}
+.hscroll{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding:2px 2px 10px;scrollbar-width:thin}
+.hscroll::-webkit-scrollbar{height:6px}
+.hscroll::-webkit-scrollbar-thumb{background:#3a2b32;border-radius:3px}
+.hscroll>*{flex:0 0 auto;scroll-snap-align:start}
+.hscroll.cards>*{width:185px}
+.hscroll.streets>*{width:150px}
+.hscroll.bts>*{width:205px}
+.scrl{position:absolute;top:42%;transform:translateY(-50%);z-index:6;width:40px;height:40px;border:2px solid #000;background:var(--yellow);color:var(--ink);border-radius:50%;cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.45)}
+.scrl.l{left:-8px} .scrl.r{right:-8px}
+@media (max-width:600px){ .scrl{display:none} }
 @media (max-width:600px){
   .grid{grid-template-columns:repeat(2,1fr);gap:11px}
   .card{padding:6px 6px 0}
@@ -123,20 +135,24 @@ section{position:relative;z-index:1}
 .arteinfo{margin-top:40px;border-top:1px dashed #2c2025;padding-top:34px}
 
 /* BEHIND THE SCENES */
-.btsgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;margin-top:22px}
+.btsgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:16px;margin-top:22px}
 .pcell{border:2px solid #000;background:#efe7d8;padding:9px 9px 0;transform:rotate(-1deg)}
 .pcell:nth-child(even){transform:rotate(1deg)}
 .pmedia{position:relative;aspect-ratio:1/1;overflow:hidden;border:1px solid #000;background-size:cover;background-position:center}
 .pmedia .play{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;background:rgba(12,7,9,.55);border:2px solid #fff;display:flex;align-items:center;justify-content:center}
 .pmedia .play svg{width:22px;height:22px;fill:#fff;margin-left:3px}
 .pmedia .ptag{position:absolute;top:8px;left:8px;background:#0c0709;color:#ffa64d;border:2px solid #000;padding:5px 10px;font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;transform:rotate(-3deg)}
+.pmedia .ptag.disponible{background:var(--yellow);color:var(--ink)}
+.pmedia .ptag.vendido{background:var(--pink);color:#fff}
+.pmedia .ptag.reservado{background:#ffa64d;color:var(--ink)}
+.pcell .pdesc{font-size:12px;color:#6b5a52;padding:0 3px 6px;line-height:1.45}
 .pcell .pname{font-size:14px;color:var(--ink);padding:9px 3px 4px}
 .pcell .pbtn{display:block;width:100%;text-align:center;background:var(--ink);color:var(--yellow);border:2px solid #000;border-top:none;
   font-family:'Barlow Condensed';font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:10px;margin:6px -9px 0;width:calc(100% + 18px);cursor:pointer;font-size:14px}
 
 /* ON THE STREETS */
 .streetbar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:18px}
-.street{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-top:20px}
+.street{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:12px;margin-top:20px}
 .scard{border:2px solid #000;background:#efe7d8;padding:8px 8px 0}
 .scard:nth-child(even){transform:rotate(-1.4deg)} .scard:nth-child(3n){transform:rotate(1.4deg)}
 .scell{aspect-ratio:1/1;border:1px solid #000;background-size:cover;background-position:center;position:relative}
@@ -264,17 +280,17 @@ footer{position:relative;z-index:1;background:var(--panel);border-top:2px solid 
 
 <section class="sec" id="homeGridSec"><div class="wrap">
   <div class="prevhead"><h2 class="h2" data-i18n-html="arte_t">GALE<span class="r">RÍA</span></h2><a class="more" href="#arte" data-i18n="ver_todo">Ver todo →</a></div>
-  <div class="grid" id="homeGrid"></div>
+  <div class="scrlwrap"><button class="scrl l" aria-label="Anterior">‹</button><div class="hscroll cards" id="homeGrid"></div><button class="scrl r" aria-label="Siguiente">›</button></div>
 </div></section>
 
 <section class="sec" id="homeBtsSec"><div class="wrap">
   <div class="prevhead"><h2 class="h2" data-i18n-html="bts_t">BEHIND THE <span class="r">SCENES</span></h2><a class="more" href="#proceso" data-i18n="ver_mas">Ver más →</a></div>
-  <div class="btsgrid" id="homeBts"></div>
+  <div class="scrlwrap"><button class="scrl l" aria-label="Anterior">‹</button><div class="hscroll bts" id="homeBts"></div><button class="scrl r" aria-label="Siguiente">›</button></div>
 </div></section>
 
 <section class="sec" id="homeStreetSec"><div class="wrap">
   <div class="prevhead"><h2 class="h2" data-i18n-html="calle_t">ON THE <span class="r">STREETS</span></h2><a class="more" href="#calle" data-i18n="ver_mas">Ver más →</a></div>
-  <div class="street" id="homeStreet"></div>
+  <div class="scrlwrap"><button class="scrl l" aria-label="Anterior">‹</button><div class="hscroll streets" id="homeStreet"></div><button class="scrl r" aria-label="Siguiente">›</button></div>
 </div></section>
 
 </div><!-- /inicio -->
@@ -473,7 +489,7 @@ const I18N = {
   cat_todo:{es:"Todo",en:"All"},
   lbl_estado:{es:"Estado",en:"Status"}, lbl_orden:{es:"Ordenar",en:"Sort"},
   fs_todos:{es:"Todos",en:"All"}, fs_disponible:{es:"Disponibles",en:"Available"}, fs_reservado:{es:"Reservados",en:"Reserved"}, fs_vendido:{es:"Vendidos",en:"Sold"},
-  so_default:{es:"Por defecto",en:"Default"}, so_pasc:{es:"Precio: menor",en:"Price: low"}, so_pdesc:{es:"Precio: mayor",en:"Price: high"}, so_az:{es:"A–Z",en:"A–Z"},
+  so_default:{es:"Aleatorio",en:"Shuffle"}, so_pasc:{es:"Precio: menor",en:"Price: low"}, so_pdesc:{es:"Precio: mayor",en:"Price: high"}, so_az:{es:"A–Z",en:"A–Z"},
   st_disponible:{es:"Disponible",en:"Available"}, st_vendido:{es:"Vendido",en:"Sold"}, st_reservado:{es:"Reservado",en:"Reserved"}
 };
 
@@ -542,6 +558,7 @@ function visiblePiezas(){
   if(sortBy==="pasc") arr.sort((a,b)=>(a.precio||0)-(b.precio||0));
   else if(sortBy==="pdesc") arr.sort((a,b)=>(b.precio||0)-(a.precio||0));
   else if(sortBy==="az") arr.sort((a,b)=>String(a.titulo&&a.titulo[lang]||"").localeCompare(String(b.titulo&&b.titulo[lang]||"")));
+  else arr.sort((a,b)=>(a._r||0)-(b._r||0));   // "Aleatorio": orden al azar por carga
   return arr;
 }
 function pieceCard(p){
@@ -567,19 +584,23 @@ function streetCard(c){
   return d;
 }
 function btsCell(p){
-  const msg = lang==="es" ? ('Hola playa, me interesa apartar: "'+p.titulo.es+'" (en proceso).') : ('Hi playa, I want to reserve: "'+p.titulo.en+'" (in progress).');
+  const estado = p.estado || "disponible";
+  const msg = lang==="es" ? ('Hola playa, me interesa: "'+p.titulo.es+'".') : ('Hi playa, I\'m interested in: "'+p.titulo.en+'".');
+  const desc = (p.descripcion && p.descripcion[lang]) || "";
   const cell = document.createElement("div"); cell.className = "pcell";
   let style = "", vid = "";
   if(p.video){ vid = '<video src="'+p.video+'" muted loop autoplay playsinline style="width:100%;height:100%;object-fit:cover"></video>'; }
   else if(p.img){ style = "background-image:url('"+p.img+"');background-size:cover;background-position:center"; }
   else { style = "background:"+(p.bg||"linear-gradient(150deg,#3a0d47,#d11a5e,#e84a1c)"); }
+  const btn = estado==="vendido" ? "" : ('<a class="pbtn" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+T("bts_btn")+'</a>');
   cell.innerHTML =
     '<div class="pmedia" style="'+style+'">'+vid+
-      '<span class="ptag">'+(lang==="es"?"En proceso":"In progress")+'</span>'+
+      '<span class="ptag '+estado+'">'+T("st_"+estado)+'</span>'+
       '<span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>'+
     '</div>'+
     '<div class="pname">'+p.titulo[lang]+'</div>'+
-    '<a class="pbtn" href="'+waLink(msg)+'" target="_blank" rel="noopener">'+T("bts_btn")+'</a>';
+    (desc ? '<div class="pdesc">'+desc+'</div>' : '')+
+    btn;
   return cell;
 }
 function renderGrid(){
@@ -590,15 +611,26 @@ function renderGrid(){
 }
 function renderStreet(){ const s = $("#street"); if(s){ s.innerHTML=""; CALLE.forEach(c => s.appendChild(streetCard(c))); } }
 function renderBts(){ const b = $("#bts"); if(b){ b.innerHTML=""; PROCESO.forEach(p => b.appendChild(btsCell(p))); } }
+const shuffle = a => a.map(x=>[Math.random(),x]).sort((m,n)=>m[0]-n[0]).map(z=>z[1]);
 function renderHome(){
-  const fill=(sel,items,builder,n)=>{const el=$(sel); if(!el)return; el.innerHTML=""; items.slice(0,n).forEach(x=>el.appendChild(builder(x)));};
-  fill("#homeGrid", PIEZAS, pieceCard, 3);
-  fill("#homeBts", PROCESO, btsCell, 3);
-  fill("#homeStreet", CALLE, streetCard, 4);
+  const fill=(sel,items,builder,n)=>{const el=$(sel); if(!el)return; el.innerHTML=""; shuffle(items.slice()).slice(0,n).forEach(x=>el.appendChild(builder(x)));};
+  fill("#homeGrid", PIEZAS, pieceCard, 12);
+  fill("#homeBts", PROCESO, btsCell, 12);
+  fill("#homeStreet", CALLE, streetCard, 14);
   const show=(sel,on)=>{const el=$(sel); if(el) el.style.display=on?"":"none";};
   show("#homeGridSec", PIEZAS.length>0);
   show("#homeBtsSec", PROCESO.length>0);
   show("#homeStreetSec", CALLE.length>0);
+}
+function wireScrollers(){
+  document.querySelectorAll(".scrlwrap").forEach(w => {
+    const sc = w.querySelector(".hscroll");
+    const l = w.querySelector(".scrl.l"), r = w.querySelector(".scrl.r");
+    if(!sc) return;
+    const amt = () => Math.max(200, sc.clientWidth*0.85);
+    if(l) l.onclick = () => sc.scrollBy({left:-amt(), behavior:"smooth"});
+    if(r) r.onclick = () => sc.scrollBy({left: amt(), behavior:"smooth"});
+  });
 }
 
 /* MODAL + CARRUSEL */
@@ -700,7 +732,8 @@ $("#mnext").addEventListener("click", () => mGo(1));
 document.addEventListener("keydown", e => { if(e.key==="Escape") closeModal(); if($("#modal").classList.contains("open")){ if(e.key==="ArrowLeft") mGo(-1); if(e.key==="ArrowRight") mGo(1);} });
 
 function boot(){
-  applyFondo(); applyI18n(); buildSubmenu(); renderCatbar(); buildControls(); renderGrid(); renderStreet(); renderBts(); renderHome();
+  PIEZAS.forEach(p => { if(p._r===undefined) p._r=Math.random(); });
+  applyFondo(); applyI18n(); buildSubmenu(); renderCatbar(); buildControls(); renderGrid(); renderStreet(); renderBts(); renderHome(); wireScrollers();
   document.querySelectorAll("#lang b").forEach(b => b.classList.toggle("on", b.getAttribute("data-l")===lang));
   route();
 }
